@@ -4,7 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171817">
-<title>El Archivo Oculto — V4.1</title>
+<title>El Archivo Oculto — Historia mundial interactiva</title>
+<meta name="description" content="El Archivo Oculto: historia mundial interactiva. Explorá acontecimientos, cronologías, dossiers, atlas y conexiones históricas.">
+<meta name="keywords" content="historia mundial, historia, cronología, guerras, revoluciones, personajes históricos, atlas histórico, El Archivo Oculto">
+<meta name="author" content="El Archivo Oculto">
+<meta property="og:title" content="El Archivo Oculto — Historia mundial interactiva">
+<meta property="og:description" content="Explorá acontecimientos, personas, guerras, revoluciones y conexiones que cambiaron el mundo.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+
 <style>
 :root{--bg:#f2eee5;--paper:#fbfaf5;--ink:#171716;--muted:#716d65;--line:#d4ccbf;--accent:#ad4932;--green:#214c47}
 *{box-sizing:border-box}
@@ -108,6 +118,27 @@ body.night .paper{background:#171a18}
 @media(max-width:950px){.hero{grid-template-columns:1fr}.hero aside{max-width:500px}#dossierGrid{grid-template-columns:repeat(2,1fr)}#grid{grid-template-columns:repeat(3,1fr)}.atlas,.connections{grid-template-columns:1fr}}
 @media(max-width:650px){nav{display:none}section{padding:70px 5vw}.hero{padding:65px 5vw}.hero h1{font-size:58px}.head{display:block}.head p{margin-top:15px}#grid{grid-template-columns:1fr 1fr}#dossierGrid{grid-template-columns:1fr}.stats{gap:15px}#modal h2{font-size:38px}.ticker{padding-left:5vw;padding-right:5vw}.ticker span{display:none}}
 @media(max-width:430px){#grid{grid-template-columns:1fr}.search kbd{display:none}}
+
+/* V5 */
+.v5bar{position:sticky;top:0;z-index:50;display:flex;gap:10px;align-items:center;justify-content:center;padding:9px 18px;background:rgba(23,24,23,.94);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.09)}
+.v5bar button,.v5bar a{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:#f4f3ee;border-radius:999px;padding:9px 14px;font:inherit;text-decoration:none;cursor:pointer}
+.v5bar .v5accent{background:#d7c6a0;color:#171716;border-color:#d7c6a0;font-weight:700}
+.v5bar .v5brand{margin-right:auto;font-weight:800;letter-spacing:.04em}
+.v5panel{display:none;max-width:1200px;margin:0 auto;padding:24px 5vw}
+.v5panel.open{display:block}
+.v5panelgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.v5mini{padding:18px;border:1px solid rgba(23,23,22,.13);border-radius:18px;background:var(--paper)}
+.v5mini h3{margin:.3rem 0 .5rem}
+.v5mini p{color:var(--muted);font-size:.92rem}
+.v5tag{display:inline-block;padding:4px 8px;border-radius:999px;background:rgba(0,0,0,.06);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em}
+.install-toast{position:fixed;left:16px;right:16px;bottom:18px;z-index:100;background:#171817;color:#f5f2e8;border:1px solid rgba(255,255,255,.15);border-radius:18px;padding:15px 16px;display:none;align-items:center;gap:12px;box-shadow:0 16px 40px rgba(0,0,0,.35)}
+.install-toast.show{display:flex}
+.install-toast span{flex:1}
+.install-toast button{border:0;border-radius:999px;padding:9px 13px;cursor:pointer}
+.v5share{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.v5share button{border:1px solid rgba(23,23,22,.16);background:transparent;border-radius:999px;padding:9px 12px;cursor:pointer}
+@media(max-width:700px){.v5bar{justify-content:flex-start;overflow:auto}.v5bar .v5brand{min-width:max-content}.v5panelgrid{grid-template-columns:1fr}.v5bar button,.v5bar a{white-space:nowrap}}
+
 </style>
 </head>
 <body>
@@ -117,10 +148,26 @@ body.night .paper{background:#171a18}
 <button class="iconbtn" id="theme" aria-label="Cambiar tema">◐</button>
 </header>
 
+
+<div class="v5bar" aria-label="Herramientas de El Archivo Oculto">
+  <span class="v5brand">AO · V5</span>
+  <button onclick="toggleV5Panel()">Mi biblioteca</button>
+  <button onclick="surpriseV5()">Descubrimiento</button>
+  <button id="installBtn" class="v5accent" hidden>Instalar app</button>
+</div>
+<div id="v5Panel" class="v5panel">
+  <div class="head"><div><small>ARCHIVO PERSONAL</small><h2>Tu biblioteca</h2></div><p>Guardá hechos y retomá tu investigación desde este dispositivo.</p></div>
+  <div class="v5panelgrid">
+    <div class="v5mini"><span class="v5tag">Favoritos</span><h3 id="v5FavCount">0</h3><p>Acontecimientos guardados.</p><button onclick="showFavorites()">Ver favoritos →</button></div>
+    <div class="v5mini"><span class="v5tag">Historial</span><h3 id="v5RecentCount">0</h3><p>Últimos acontecimientos abiertos.</p><button onclick="showRecent()">Ver recientes →</button></div>
+    <div class="v5mini"><span class="v5tag">Acceso rápido</span><h3>Buscar por año</h3><p>Escribí un año, persona, lugar o palabra en el buscador principal.</p><button onclick="document.querySelector('#q').focus();document.querySelector('#explorar').scrollIntoView({behavior:'smooth'})">Abrir buscador →</button></div>
+  </div>
+</div>
+<div id="installToast" class="install-toast"><span>Podés instalar <b>El Archivo Oculto</b> como una app en tu celular.</span><button id="installNow">Instalar</button><button id="installLater">Ahora no</button></div>
 <main id="inicio">
 <section class="hero">
 <div>
-<div class="eyebrow">ARCHIVO HISTÓRICO INTERACTIVO · V4.1</div>
+<div class="eyebrow">ARCHIVO HISTÓRICO INTERACTIVO · V5</div>
 <h1>La historia<br><i>no está cerrada.</i></h1>
 <p>Buscá guerras, revoluciones, descubrimientos, personas y acontecimientos que cambiaron el mundo.</p>
 <div class="search"><b>⌕</b><input id="q" autocomplete="off" placeholder="Buscá evento, persona, lugar o año…"><kbd>Ctrl K</kbd></div>
@@ -130,7 +177,7 @@ body.night .paper{background:#171a18}
 <aside><small>DOCUMENTO DESTACADO</small><strong>1963</strong><h3>El asesinato de John F. Kennedy</h3><button class="primary" onclick="openDossier('jfk')">Abrir dossier →</button></aside>
 </section>
 
-<div class="ticker"><span>HOY EN LA HISTORIA · 25 DE SEPTIEMBRE</span><button onclick="randomEvent()">SORPRÉNDEME ↗</button></div>
+<div class="ticker"><span id="todayTicker">HOY EN LA HISTORIA</span><button onclick="randomEvent()">SORPRÉNDEME ↗</button></div>
 
 <section id="explorar">
 <div class="head"><div><small>01 · EXPLORAR</small><h2>Encontrá el momento exacto.</h2></div><p>Filtrá por época, categoría o período. Tocá una ficha para abrirla.</p></div>
@@ -170,7 +217,7 @@ body.night .paper{background:#171a18}
 </section>
 </main>
 
-<footer><span>AO · EL ARCHIVO OCULTO</span><span>V4.1 · 2026</span></footer>
+<footer><span>AO · EL ARCHIVO OCULTO</span><span>V5 · 2026</span></footer>
 
 <div id="modal"><article><button onclick="closeModal()" aria-label="Cerrar">×</button><div id="modalBody"></div></article></div>
 
@@ -192,7 +239,7 @@ function list(){
 function render(){
  const a=list();
  $("#count").textContent=EVENTS.length;
- $("#meta").textContent=a.length+" resultados · catálogo V4.1";
+ $("#meta").textContent=a.length+" resultados · catálogo V5";
  $("#grid").innerHTML=a.slice(0,120).map(e=>`
  <article class="card">
   <span class="year">${e.year} · ${e.place}</span>
@@ -207,7 +254,10 @@ function render(){
 function fav(id){state.favs=state.favs.includes(id)?state.favs.filter(x=>x!==id):[...state.favs,id];save();render()}
 function openEvent(id){
  const e=EVENTS.find(x=>x.id===id);
- $("#modalBody").innerHTML=`<span class="modalmeta">${e.year} · ${e.era} · ${e.category}</span><h2>${e.title}</h2><p>${e.description}</p><p><b>Lugar:</b> ${e.place}</p><div class="fact">Esta ficha es una puerta de entrada. La arquitectura permite añadir documentos primarios, mapas fechados, bibliografía y versiones por nivel de lectura.</div>`;
+ if(!e)return;
+ recentOpen(id);
+ history.replaceState(null,"","#evento="+encodeURIComponent(id));
+ $("#modalBody").innerHTML=`<span class="modalmeta">${e.year} · ${e.era} · ${e.category}</span><h2>${e.title}</h2><p>${e.description}</p><p><b>Lugar:</b> ${e.place}</p><div class="fact">Esta ficha es una puerta de entrada. La arquitectura está preparada para incorporar documentos primarios, mapas fechados, bibliografía, imágenes y niveles de lectura.</div><div class="v5share"><button onclick="copyEventLink('${e.id}')">Copiar enlace</button><button onclick="shareEvent('${e.id}')">Compartir</button></div>`;
  $("#modal").classList.add("open");
 }
 function openDossier(id){
@@ -280,5 +330,79 @@ window.answer=i=>{
 $("#next").onclick=()=>{qi=(qi+1)%QUIZ.length;if(qi===0)score=0;drawQuiz()};
 
 save();render();timeline(1945);drawQuiz();
+
+/* ===== V5 PERSONAL LIBRARY + SHARE + PWA ===== */
+const RECENT_KEY="ao-recent";
+function getRecent(){try{return JSON.parse(localStorage.getItem(RECENT_KEY)||"[]")}catch{return[]}}
+function recentOpen(id){
+  let a=getRecent().filter(x=>x!==id);
+  a.unshift(id); a=a.slice(0,12);
+  localStorage.setItem(RECENT_KEY,JSON.stringify(a));
+  updateV5Stats();
+}
+function updateV5Stats(){
+  const fc=document.querySelector("#v5FavCount"), rc=document.querySelector("#v5RecentCount");
+  if(fc)fc.textContent=state.favs.length;
+  if(rc)rc.textContent=getRecent().length;
+}
+function toggleV5Panel(){
+  const p=document.querySelector("#v5Panel"); p.classList.toggle("open"); updateV5Stats();
+}
+function showFavorites(){
+  const favs=state.favs.map(id=>EVENTS.find(e=>e.id===id)).filter(Boolean);
+  document.querySelector("#meta").textContent=favs.length+" favoritos";
+  document.querySelector("#grid").innerHTML=favs.length?favs.map(e=>`<article class="card"><span class="year">${e.year} · ${e.place}</span><h3>${e.title}</h3><p>${e.description}</p><div class="foot"><span>${e.category}</span><button class="ghost" onclick="openEvent('${e.id}')">↗</button></div></article>`).join(""):"<p>Todavía no guardaste acontecimientos.</p>";
+  document.querySelector("#explorar").scrollIntoView({behavior:"smooth"});
+}
+function showRecent(){
+  const recent=getRecent().map(id=>EVENTS.find(e=>e.id===id)).filter(Boolean);
+  document.querySelector("#meta").textContent=recent.length+" recientes";
+  document.querySelector("#grid").innerHTML=recent.length?recent.map(e=>`<article class="card"><span class="year">${e.year} · ${e.place}</span><h3>${e.title}</h3><p>${e.description}</p><div class="foot"><span>${e.category}</span><button class="ghost" onclick="openEvent('${e.id}')">↗</button></div></article>`).join(""):"<p>Todavía no abriste acontecimientos.</p>";
+  document.querySelector("#explorar").scrollIntoView({behavior:"smooth"});
+}
+function surpriseV5(){randomEvent();document.querySelector("#explorar").scrollIntoView({behavior:"smooth"})}
+async function copyEventLink(id){
+  const url=new URL(location.href); url.hash="evento="+id;
+  try{await navigator.clipboard.writeText(url.href); alert("Enlace copiado.");}catch{prompt("Copiá este enlace:",url.href)}
+}
+async function shareEvent(id){
+  const e=EVENTS.find(x=>x.id===id); if(!e)return;
+  const url=new URL(location.href); url.hash="evento="+id;
+  if(navigator.share){try{await navigator.share({title:e.title,text:`${e.title} · El Archivo Oculto`,url:url.href});}catch{}}
+  else copyEventLink(id);
+}
+function handleDeepLink(){
+  const m=location.hash.match(/evento=([^&]+)/);
+  if(m){const id=decodeURIComponent(m[1]);setTimeout(()=>openEvent(id),250);}
+}
+document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();document.querySelector("#q")?.focus()}});
+window.addEventListener("popstate",handleDeepLink);
+window.addEventListener("hashchange",handleDeepLink);
+const dnow=new Date();
+const monthNames=["ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"];
+const ticker=document.querySelector("#todayTicker");
+if(ticker)ticker.textContent=`HOY EN LA HISTORIA · ${dnow.getDate()} DE ${monthNames[dnow.getMonth()]}`;
+
+let deferredInstall=null;
+window.addEventListener("beforeinstallprompt",e=>{
+  e.preventDefault(); deferredInstall=e;
+  const b=document.querySelector("#installBtn"),t=document.querySelector("#installToast");
+  if(b)b.hidden=false;
+  if(t)t.classList.add("show");
+});
+async function doInstall(){
+  if(!deferredInstall)return;
+  deferredInstall.prompt();
+  try{await deferredInstall.userChoice}catch{}
+  deferredInstall=null;
+  document.querySelector("#installToast")?.classList.remove("show");
+}
+document.querySelector("#installBtn")?.addEventListener("click",doInstall);
+document.querySelector("#installNow")?.addEventListener("click",doInstall);
+document.querySelector("#installLater")?.addEventListener("click",()=>document.querySelector("#installToast")?.classList.remove("show"));
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
+updateV5Stats();
+handleDeepLink();
+
 </script>
 </body></html>

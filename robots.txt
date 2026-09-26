@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://cr909700-sketch.github.io/El-Archivo-Oculto/sitemap.xml
